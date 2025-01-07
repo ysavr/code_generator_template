@@ -1,5 +1,5 @@
 class CodeSnippetGenerator {
-  String generateButton(String label, String outputDirectory) {
+  String generateButton(String label) {
     String buttonCode = '''
 ElevatedButton(
   onPressed: () {
@@ -12,7 +12,7 @@ ElevatedButton(
     return buttonCode;
   }
 
-  String generateLoginScreen(String outputDirectory) {
+  String generateLoginScreen() {
     String className = 'LoginScreen';
     String fileContent = '''
 import 'package:flutter/material.dart';

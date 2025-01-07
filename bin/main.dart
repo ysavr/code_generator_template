@@ -30,21 +30,14 @@ Future<void> main(List<String> arguments) async {
 }
 
 Future<void> chooseDirectoryAndGenerateSnippet(String snippetType) async {
-  print('Enter the output directory (e.g., lib/widgets, ./my_widgets):');
-  String? outputDirectory = stdin.readLineSync();
-        
-  if (outputDirectory == null || outputDirectory.isEmpty) {
-    print('Output directory cannot be empty. Using current directory.');
-    outputDirectory = '.'; // Default to current directory
-  }
-
+  String output;
   switch(snippetType) {
     case 'button':
       stdout.write('Enter the button label: ',);
       String? label = stdin.readLineSync();
       if (label != null && label.isNotEmpty) {
-        String output = CodeSnippetGenerator().generateButton(label, outputDirectory);
-        writeToFile(outputDirectory, 'button_snippet.dart', output);
+        output = CodeSnippetGenerator().generateButton(label);
+        askSaveContent(output, "button_snippet.dart");
         await copyToClipboard(output);
       } else {
         print('Button label cannot be empty.');
@@ -52,12 +45,36 @@ Future<void> chooseDirectoryAndGenerateSnippet(String snippetType) async {
       await waitForUserAcknowledgment();
     break;
     case 'loginScreen':
-      String output = CodeSnippetGenerator().generateLoginScreen(outputDirectory);
-      writeToFile(outputDirectory, 'login_screen.dart', output);
+      output = CodeSnippetGenerator().generateLoginScreen();
+      askSaveContent(output, "login_screen.dart");
       await copyToClipboard(output);
       await waitForUserAcknowledgment();
     break;
+    default:
+    return;
   }
+
+}
+
+Future<void> askSaveContent(String output, String fileName) async {
+  await copyToClipboard(output);
+
+  // Ask if the user wants to save the content
+  stdout.write('Do you want to save this content to a file? (y/n): ');
+  String? saveChoice = stdin.readLineSync()?.toLowerCase();
+
+  if (saveChoice == 'y') {
+    stdout.write('Enter the output directory (e.g., lib/widgets): ');
+    String? outputDirectory = stdin.readLineSync();
+    if (outputDirectory == null || outputDirectory.isEmpty) {
+      outputDirectory = './gen';
+    }
+    // Save content to file
+    writeToFile(outputDirectory, fileName, output);
+  } else {
+    print('Skipping save. Content has been copied to clipboard.');
+  }
+
 }
 
 void writeToFile(String outputDirectory, String fileName, String content) {
