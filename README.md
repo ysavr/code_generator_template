@@ -8,7 +8,17 @@ dart run bin/main.dart
 
 - compile project to binary file
 ```
-dart compile exe bin/main.dart -o {{generate_file_name}}
+dart compile exe bin/main.dart -o {{file_name}}
+```
+
+- compile with destination path
+```
+dart compile exe bin/main.dart -o build/{{file_name}}
+```
+
+- compile with destination path and create `build` directory
+```
+mkdir -p build && dart compile exe bin/main.dart -o build/{{file_name}}
 ```
 
 - make executable

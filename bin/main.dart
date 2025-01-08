@@ -1,4 +1,5 @@
 import 'package:code_generator_template/code_snippet_generator.dart';
+import 'package:code_generator_template/enum.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 
@@ -15,10 +16,10 @@ Future<void> main(List<String> arguments) async {
 
     switch (choice) {
       case '1':
-        await chooseDirectoryAndGenerateSnippet('button');
+        await buttonMenu();
         break;
       case '2':
-        await chooseDirectoryAndGenerateSnippet('loginScreen');
+        await chooseDirectoryAndGenerateSnippet('login screen');
         break;
       case '3':
         print('Exiting.');
@@ -29,34 +30,67 @@ Future<void> main(List<String> arguments) async {
   }
 }
 
+Future<void> buttonMenu() async {
+  while (true) {
+    print('\nButton Sub-Menu:');
+    print('1: Basic Button');
+    print('2: Button with Outline Border');
+    print('3: Back to Main Menu');
+
+    stdout.write('Select a button type to generate: ');
+    String? subChoice = stdin.readLineSync();
+
+    switch (subChoice) {
+      case '1':
+        await chooseDirectoryAndGenerateSnippet('basic button');
+        break;
+      case '2':
+        await chooseDirectoryAndGenerateSnippet('outline button');
+        break;
+      case '3':
+        return; // Go back to main menu
+      default:
+        print('Invalid choice. Please select 1, 2, or 3.');
+    }
+  }
+}
+
 Future<void> chooseDirectoryAndGenerateSnippet(String snippetType) async {
   String output;
   switch(snippetType) {
-    case 'button':
+    case 'basic button':
       stdout.write('Enter the button label: ',);
       String? label = stdin.readLineSync();
       if (label != null && label.isNotEmpty) {
-        output = CodeSnippetGenerator().generateButton(label);
-        askSaveContent(output, "button_snippet.dart");
+        output = CodeSnippetGenerator().elevatedButton(label);
+        askSaveContent(output, "button_snippet.dart", WidgetPath.widgets);
         await copyToClipboard(output);
       } else {
         print('Button label cannot be empty.');
       }
       await waitForUserAcknowledgment();
     break;
-    case 'loginScreen':
-      output = CodeSnippetGenerator().generateLoginScreen();
-      askSaveContent(output, "login_screen.dart");
+    
+    case 'outline button':
+      output = CodeSnippetGenerator().outlineButton();
+      askSaveContent(output, "outline_button_snippet.dart", WidgetPath.widgets);
+      await copyToClipboard(output);
+    break;
+
+    case 'login screen':
+      output = CodeSnippetGenerator().loginScreen();
+      askSaveContent(output, "login_screen.dart", WidgetPath.screens);
       await copyToClipboard(output);
       await waitForUserAcknowledgment();
     break;
     default:
+      print('invalid choice.');
     return;
   }
 
 }
 
-Future<void> askSaveContent(String output, String fileName) async {
+Future<void> askSaveContent(String output, String fileName, WidgetPath widgetPath) async {
   await copyToClipboard(output);
 
   // Ask if the user wants to save the content
@@ -67,7 +101,7 @@ Future<void> askSaveContent(String output, String fileName) async {
     stdout.write('Enter the output directory (e.g., lib/widgets): ');
     String? outputDirectory = stdin.readLineSync();
     if (outputDirectory == null || outputDirectory.isEmpty) {
-      outputDirectory = './gen';
+      outputDirectory = './gen/${widgetPath.name}';
     }
     // Save content to file
     writeToFile(outputDirectory, fileName, output);
@@ -91,7 +125,7 @@ void writeToFile(String outputDirectory, String fileName, String content) {
   print('$fileName file generated successfully at: $filePath');
 
   // Print the file content to the console
-  print('Generated file content:');
+  print('\nGenerated file content:');
   print('--------------------------------');
   print(content);
   print('--------------------------------');
@@ -119,7 +153,13 @@ Future<void> copyToClipboard(String text) async {
 }
 
 Future<void> waitForUserAcknowledgment() async {
-  print('\nPress Enter to return to the menu...');
-  stdin.readLineSync(); // Waits for user to press Enter
-  exit(0);
+  stdout.write('\nPress Enter to return to the main menu or type "q" to exit the program: ');
+  String? input = stdin.readLineSync();
+
+  if (input != null && input.toLowerCase() == 'q') {
+    print('Exiting.');
+    exit(0); // Quit the program
+  } else {
+    print('Returning to the main menu...');
+  }
 }

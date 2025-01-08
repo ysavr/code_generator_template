@@ -1,0 +1,1 @@
+enum WidgetPath { widgets, screens }
