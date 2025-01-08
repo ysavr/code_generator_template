@@ -1,7 +1,7 @@
 name: code_generator_template
-description: A sample command-line application.
+description: A command-line utility to generate Dart code snippets.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/ysavr/code_generator_template
 
 environment:
   sdk: ^3.6.0
